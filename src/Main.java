@@ -4,4 +4,10 @@ public class Main {
 
         var s = "1";
     }
+
+
+    private void goog(){
+        String s = "1";
+        System.out.println(s);
+    }
 }
