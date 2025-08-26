@@ -16,11 +16,11 @@ public class JobSchedulerHelper {
                 .build();
     }
 
-    public static Trigger buildCronTrigger(JobDetail jobDetail, String name, String cronExpression) {
+    public static Trigger buildCronTrigger(JobDetail jobDetail, String name, CronScheduleBuilder cronExpression) {
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(name + "_trigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
+                .withSchedule(cronExpression)
                 .build();
     }
 }

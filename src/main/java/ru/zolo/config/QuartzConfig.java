@@ -1,19 +1,17 @@
 package ru.zolo.config;
 
 import lombok.RequiredArgsConstructor;
-import org.quartz.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.quartz.CronExpression;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
-import ru.zolo.schedule.jobs.ByeJob;
-import ru.zolo.schedule.jobs.HelloJob;
 import ru.zolo.schedule.jobs.JobBase;
 
 import java.util.ArrayList;
@@ -52,6 +50,7 @@ public class QuartzConfig {
 
     private final ScheduleProperties scheduleProperties;
 
+
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean(List<JobBase> jobs) {
         List<JobDetail> jobDetails = new ArrayList<>();
@@ -59,13 +58,29 @@ public class QuartzConfig {
 
         for (JobBase job : jobs) {
             Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
-                Class<? extends Job> jobClass = job.getClass();
+                String cron = jobConfig.getCron();
+                if(cron != null && CronExpression.isValidExpression(cron)) {
+                    //Пример:
+                    //  Cron: "0/5 * * * * ?" (каждые 5 сек)
+                    //  Выполнение: 1 сек
+                    //  Все потоки заняты в момент 12:00:00
+                    //-----идеал:
+                    //
+                    //  Потоков нет → запуск откладывается
+                    //  Потоки есть \ задача завершена -> запуск в 12 00 00
+                    //  Потоки есть задача не завершена - > запуск в 12 00 05
+                    CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron);
+//                            .withMisfireHandlingInstructionFireAndProceed();
 
-                JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
-                Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), jobConfig.getCron());
 
-                jobDetails.add(jobDetail);
-                triggers.add(trigger);
+                    Class<? extends Job> jobClass = job.getClass();
+
+                    JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
+                    Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), cronExpression);
+
+                    jobDetails.add(jobDetail);
+                    triggers.add(trigger);
+                }
             });
         }
 

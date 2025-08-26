@@ -10,6 +10,7 @@ org:
 schedule:
   jobs:
     hello:
-      cron: "0/10 * * * * ?"
-#    bye:
-#      cron: "0/15 * * * * ?"
+#      cron: "0/4 * * * * ?"
+      cron: "-"
+    bye:
+      cron: "0/5 * * * * ?"
