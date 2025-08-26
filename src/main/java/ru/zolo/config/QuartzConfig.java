@@ -14,9 +14,11 @@ import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
 import ru.zolo.schedule.jobs.ByeJob;
 import ru.zolo.schedule.jobs.HelloJob;
+import ru.zolo.schedule.jobs.JobBase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //@Configuration
 //@RequiredArgsConstructor
@@ -25,7 +27,8 @@ import java.util.List;
 //    private final ScheduleProperties scheduleProperties;
 //
 //    @Bean
-////    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+
+/// /    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 //    public List<Trigger> triggers(List<JobDetail> jobDetails) {
 //        List<Trigger> triggers = new ArrayList<>();
 //
@@ -44,38 +47,26 @@ import java.util.List;
 
 @Configuration
 @EnableConfigurationProperties(ScheduleProperties.class)
+@RequiredArgsConstructor
 public class QuartzConfig {
 
     private final ScheduleProperties scheduleProperties;
-    private final ApplicationContext applicationContext;
-
-    public QuartzConfig(ScheduleProperties scheduleProperties, ApplicationContext applicationContext) {
-        this.scheduleProperties = scheduleProperties;
-        this.applicationContext = applicationContext;
-    }
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean() {
+    public SchedulerFactoryBean schedulerFactoryBean(List<JobBase> jobs) {
         List<JobDetail> jobDetails = new ArrayList<>();
         List<Trigger> triggers = new ArrayList<>();
 
+        for (JobBase job : jobs) {
+            Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
+                Class<? extends Job> jobClass = job.getClass();
 
+                JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
+                Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), jobConfig.getCron());
 
-        for (ScheduleProperties.JobConfig jobConfig : scheduleProperties.getJobs()) {
-            // Получаем бин из контекста по имени
-            Object bean = applicationContext.getBean(jobConfig.getName());
-
-            if (!(bean instanceof Job)) {
-                throw new IllegalArgumentException("Bean with name '" + jobConfig.getName() + "' does not implement Job interface");
-            }
-
-            Class<? extends Job> jobClass = (Class<? extends Job>) bean.getClass();
-
-            JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, jobConfig.getName());
-            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, jobConfig.getName(), jobConfig.getCron());
-
-            jobDetails.add(jobDetail);
-            triggers.add(trigger);
+                jobDetails.add(jobDetail);
+                triggers.add(trigger);
+            });
         }
 
         SchedulerFactoryBean factory = new SchedulerFactoryBean();

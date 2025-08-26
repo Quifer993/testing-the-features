@@ -11,8 +11,7 @@ import ru.zolo.properties.ScheduleProperties;
 public class QuartzApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext run = SpringApplication.run(QuartzApplication.class, args);
-        run.getBean(ScheduleProperties.class);
+        SpringApplication.run(QuartzApplication.class, args);
     }
 
 }

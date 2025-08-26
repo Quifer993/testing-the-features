@@ -9,9 +9,7 @@ org:
 
 schedule:
   jobs:
-    - name : hello
-      cron: "0/10 * * * * ?";
-
-    - name: bye
-      cron: "0/15 * * * * ?"
-    ]
+    hello:
+      cron: "0/10 * * * * ?"
+#    bye:
+#      cron: "0/15 * * * * ?"

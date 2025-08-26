@@ -1,12 +1,19 @@
 package ru.zolo.schedule.jobs;
 
+import lombok.Getter;
 import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.BeanNameAware;
+import ru.zolo.properties.ScheduleProperties;
 
-abstract class JobBase implements Job {
-    protected String cron;
+public abstract class JobBase implements Job, BeanNameAware {
+    @Getter
+    protected String beanName;
+
+    private ScheduleProperties scheduleProperties;
 
     @Override
-    public abstract void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException;
+    public void setBeanName(String name) {
+        this.beanName = name;
+    }
+
 }
