@@ -60,15 +60,15 @@ public class QuartzConfig {
             Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
                 String cron = jobConfig.getCron();
                 if(cron != null && CronExpression.isValidExpression(cron)) {
-                    //Пример:
-                    //  Cron: "0/5 * * * * ?" (каждые 5 сек)
-                    //  Выполнение: 1 сек
-                    //  Все потоки заняты в момент 12:00:00
-                    //-----идеал:
-                    //
-                    //  Потоков нет → запуск откладывается
-                    //  Потоки есть \ задача завершена -> запуск в 12 00 00
-                    //  Потоки есть задача не завершена - > запуск в 12 00 05
+                    //todo
+                    //  Дано:
+                    //      Cron: "0/5 * * * * ?" (каждые 5 сек)
+                    //      Выполнение: 1 сек
+                    //      Все потоки заняты в момент 12:00:00
+                    //  Идеал:
+                    //      Потоков нет → запуск откладывается
+                    //      Потоки есть \ задача завершена -> запуск в 12 00 00
+                    //      Потоки есть задача не завершена - > запуск в 12 00 05
                     CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron);
 //                            .withMisfireHandlingInstructionFireAndProceed();
 
