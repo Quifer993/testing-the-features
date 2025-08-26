@@ -1,0 +1,17 @@
+org:
+  quartz:
+    job-store-type: memory
+    scheduler-name: simple-scheduler
+    jobStore:
+      class=org:
+        quartz:
+          simpl: RAMJobStore
+
+schedule:
+  jobs:
+    - name : hello
+      cron: "0/10 * * * * ?";
+
+    - name: bye
+      cron: "0/15 * * * * ?"
+    ]
