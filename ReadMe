@@ -1,0 +1,3 @@
+autoopertaion - job
+scheduler -	jobDetails
+	  -	triggrer (отдельно создать класс, который будет проходить по всем джобам)
