@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component("test")
 @DisallowConcurrentExecution
 public class TestJob extends JobBase {
-
     static LocalDateTime start = null;
 
     static AtomicInteger counter = new AtomicInteger(0);

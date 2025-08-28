@@ -5,11 +5,11 @@ spring:
   application:
     name: quartz-test
 
-  datasource:
-    url: jdbc:postgresql://localhost:35432/umpa
-    username: admin
-    password: 123
-    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/umpa
+#    username: admin
+#    password: 123
+#    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -20,7 +20,7 @@ spring:
         format_sql: true
     database: POSTGRESQL
   quartz:
-    #    data-source: quartzDataSource
+    data-source: quartzDataSource
     job-store-type: jdbc
     jdbc:
       initialize-schema: always
@@ -30,12 +30,13 @@ spring:
           scheduler:
             instanceName: QuartzScheduler
           jobStore:
-            #            class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
+            dataSource: quartzDataSource
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
             clusterCheckinInterval: 20000
-            misfireThreshold: 4000
+            misfireThreshold: 7000
           threadPool:
             threadCount: 1
 
@@ -49,3 +50,11 @@ schedule:
     #      cron: "-"
 #    bye:
 #      cron: "0/15 * * * * ?"
+
+datasource-quartz:
+  url: jdbc:postgresql://localhost:5432/umpa
+  username: admin
+  password: 123
+  driver-class-name: org.postgresql.Driver
+  configuration:
+    maximum-pool-size: 10

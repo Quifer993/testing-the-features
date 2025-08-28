@@ -16,6 +16,7 @@ public class JobSchedulerHelper {
         return JobBuilder.newJob(jobClass)
                 .withIdentity(name + "_job")
                 .storeDurably()
+                .requestRecovery()
                 .build();
     }
 

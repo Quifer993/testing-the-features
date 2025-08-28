@@ -6,4 +6,32 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: "123"
     ports:
-      - '35432:5432'
+      - '5432:5432'
+
+  master-quartz-test:
+    build: .
+    container_name: master-quartz-test
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    depends_on:
+      - postgres-quartz-test
+    volumes:
+      - ./application-docker.yaml:/app/config/application-docker.yaml
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_LOCATION: classpath:/application.yaml,file:/app/config/
+
+  slave-quartz-test:
+    build: .
+    container_name: slave-quartz-test
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+    depends_on:
+      - postgres-quartz-test
+    volumes:
+      - ./application-docker.yaml:/app/config/application-docker.yaml
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_LOCATION: classpath:/application.yaml,file:/app/config/
