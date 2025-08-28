@@ -11,6 +11,6 @@ WORKDIR /app
 
 # Копируем jar-файл
 COPY target/quartz-test-1.0-SNAPSHOT.jar app.jar
+COPY target/classes/application-docker.yaml /app/config/application-docker.yaml
 
-# Команда запуска приложения
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar", "--spring.config.additional-location=config/application-docker.yaml"]

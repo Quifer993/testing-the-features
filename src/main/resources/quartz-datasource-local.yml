@@ -1,0 +1,7 @@
+datasource-quartz:
+  url: jdbc:postgresql://localhost:5432/umpa
+  username: admin
+  password: 123
+  driver-class-name: org.postgresql.Driver
+  configuration:
+    maximum-pool-size: 10

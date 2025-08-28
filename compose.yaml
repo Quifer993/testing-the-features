@@ -1,3 +1,5 @@
+version: '2'
+
 services:
   postgres-quartz-test:
     image: 'postgres:latest'
@@ -16,11 +18,10 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres-quartz-test
-    volumes:
-      - ./application-docker.yaml:/app/config/application-docker.yaml
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_LOCATION: classpath:/application.yaml,file:/app/config/
+      SPRING_CONFIG_LOCATION: classpath:/application.yml,file:/app/config/
+
 
   slave-quartz-test:
     build: .
@@ -30,8 +31,6 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres-quartz-test
-    volumes:
-      - ./application-docker.yaml:/app/config/application-docker.yaml
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_LOCATION: classpath:/application.yaml,file:/app/config/
+      SPRING_CONFIG_LOCATION: classpath:/application.yml,file:/app/config/
