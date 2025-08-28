@@ -1,0 +1,9 @@
+services:
+  postgres-quartz-test:
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: umpa
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: "123"
+    ports:
+      - '5432:5432'
