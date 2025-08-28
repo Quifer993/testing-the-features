@@ -1,16 +1,51 @@
-org:
+server:
+  port: 8787
+
+spring:
+  application:
+    name: quartz-test
+
+  datasource:
+    url: jdbc:postgresql://localhost:35432/umpa
+    username: admin
+    password: 123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: POSTGRESQL
   quartz:
-    job-store-type: memory
-    scheduler-name: simple-scheduler
-    jobStore:
-      class=org:
+    #    data-source: quartzDataSource
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
         quartz:
-          simpl: RAMJobStore
+          scheduler:
+            instanceName: QuartzScheduler
+          jobStore:
+            #            class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+            clusterCheckinInterval: 20000
+            misfireThreshold: 4000
+          threadPool:
+            threadCount: 1
 
 schedule:
   jobs:
     hello:
-#      cron: "0/4 * * * * ?"
-      cron: "-"
-    bye:
+      cron: "32 * * * * ?"
+#      #          cron: "-"
+    test:
       cron: "0/5 * * * * ?"
+    #      cron: "-"
+#    bye:
+#      cron: "0/15 * * * * ?"

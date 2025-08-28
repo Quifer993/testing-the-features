@@ -6,6 +6,7 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
+import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,34 +15,12 @@ import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
 import ru.zolo.schedule.jobs.JobBase;
 
+import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-//@Configuration
-//@RequiredArgsConstructor
-//public class QuartzConfig {
-//
-//    private final ScheduleProperties scheduleProperties;
-//
-//    @Bean
-
-/// /    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-//    public List<Trigger> triggers(List<JobDetail> jobDetails) {
-//        List<Trigger> triggers = new ArrayList<>();
-//
-//        for (JobDetail jobDetail : jobDetails) {
-//            String jobName = jobDetail.getKey().getName().replace("_job", "");
-//
-//            String cron = scheduleProperties.getJobs()..getCron();
-//            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, jobName, cron);
-//            triggers.add(trigger);
-//        }
-//
-//        return triggers;
-//    }
-//
-//}
+import java.util.Properties;
 
 @Configuration
 @EnableConfigurationProperties(ScheduleProperties.class)
@@ -50,43 +29,69 @@ public class QuartzConfig {
 
     private final ScheduleProperties scheduleProperties;
 
+//    @Bean("quartzDataSource")
+//    @QuartzDataSource
+//    @ConditionalOnBean(DataSource.class)
+//    public DataSource quartzDataSource(@Qualifier("dataSource") DataSource dataSource){
+//        return dataSource;
+//    }
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(List<JobBase> jobs) {
-        List<JobDetail> jobDetails = new ArrayList<>();
-        List<Trigger> triggers = new ArrayList<>();
+    public SchedulerFactoryBeanCustomizer schedulerFactoryBeanCustomizer(List<Job> jobs, DataSource dataSource) {
+        return factory -> {
+            List<JobDetail> jobDetails = new ArrayList<>();
+            List<Trigger> triggers = new ArrayList<>();
 
-        for (JobBase job : jobs) {
-            Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
-                String cron = jobConfig.getCron();
-                if(cron != null && CronExpression.isValidExpression(cron)) {
-                    //todo
-                    //  Дано:
-                    //      Cron: "0/5 * * * * ?" (каждые 5 сек)
-                    //      Выполнение: 1 сек
-                    //      Все потоки заняты в момент 12:00:00
-                    //  Идеал:
-                    //      Потоков нет → запуск откладывается
-                    //      Потоки есть \ задача завершена -> запуск в 12 00 00
-                    //      Потоки есть задача не завершена - > запуск в 12 00 05
-                    CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron);
-//                            .withMisfireHandlingInstructionFireAndProceed();
+            for (Job job2 : jobs) {
+                if (JobBase.class.isAssignableFrom(job2.getClass())) {
+                    JobBase job = (JobBase) job2;
+                    Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
+                        String cron = jobConfig.getCron();
+                        if (cron != null && CronExpression.isValidExpression(cron)) {
+                            //todo
+                            //  Дано:
+                            //      Cron: "0/5 * * * * ?" (каждые 5 сек)
+                            //      Выполнение: 1-7 сек
+                            //      Все потоки заняты в момент 12:00:00
+                            //  Идеал:
+                            //      Потоков нет → запуск откладывается
+                            //      Потоки есть \ задача завершена -> запуск в 12 00 00
+                            //      Потоки есть задача не завершена - > запуск в 12 00 05
+                            CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron)
+                                    .withMisfireHandlingInstructionFireAndProceed();
+//                                    .withMisfireHandlingInstructionIgnoreMisfires();
+//                                    .withMisfireHandlingInstructionDoNothing();
+//                                    .withMisfireHandlingInstructionFireAndProceed();
 
 
-                    Class<? extends Job> jobClass = job.getClass();
+                            Class<? extends Job> jobClass = job.getClass();
 
-                    JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
-                    Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), cronExpression);
+                            JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
+                            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), cronExpression);
+//                            Trigger trigger = JobSchedulerHelper.cronTrigger(jobDetail, job.getBeanName(), cron);
 
-                    jobDetails.add(jobDetail);
-                    triggers.add(trigger);
+                            jobDetails.add(jobDetail);
+                            triggers.add(trigger);
+                        }
+                    });
                 }
-            });
-        }
+            }
 
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setJobDetails(jobDetails.toArray(new JobDetail[0]));
-        factory.setTriggers(triggers.toArray(new Trigger[0]));
-        return factory;
+            factory.setJobDetails(jobDetails.toArray(new JobDetail[0]));
+            factory.setTriggers(triggers.toArray(new Trigger[0]));
+            setProperty(factory, "org.quartz.threadPool.threadCount", Integer.valueOf(triggers.size()).toString());
+        };
+    }
+
+    private static void setProperty(SchedulerFactoryBean factory, String name, String value){
+        try {
+            Field fieldQuartzProperties = SchedulerFactoryBean.class.getDeclaredField("quartzProperties");
+            fieldQuartzProperties.setAccessible(true);
+            Properties prop = (Properties)fieldQuartzProperties.get(factory);
+            prop.put(name, value);
+            fieldQuartzProperties.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
