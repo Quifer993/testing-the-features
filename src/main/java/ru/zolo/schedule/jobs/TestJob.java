@@ -14,7 +14,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component("test")
+@Component("test2")
 @DisallowConcurrentExecution
 public class TestJob extends JobBase {
     static LocalDateTime start = null;
@@ -36,7 +36,7 @@ public class TestJob extends JobBase {
         try {
             if(i < 4){
 //            if(new Random().nextBoolean()) {
-                Thread.sleep(8000);
+                Thread.sleep(3000);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

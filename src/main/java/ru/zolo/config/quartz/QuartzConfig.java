@@ -2,29 +2,25 @@ package ru.zolo.config.quartz;
 
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDetail;
-import org.quartz.JobListener;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
-import org.quartz.impl.matchers.KeyMatcher;
 import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
 import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
+import ru.zolo.config.quartz.listiner.QuartzTriggerListener;
 import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
 import ru.zolo.schedule.jobs.JobBase;
@@ -42,48 +38,12 @@ import java.util.Properties;
 import static org.quartz.JobKey.jobKey;
 
 @Configuration
-@EnableConfigurationProperties(ScheduleProperties.class)
 @RequiredArgsConstructor
 public class QuartzConfig {
-
     private final ScheduleProperties scheduleProperties;
 
-    private final SchedulerFactoryBean schedulerFactory;
-//    private final JobListener jobListener;
-    private final TriggerListener triggerListener;
-
-//    @PostConstruct
-//    public void addListener() throws SchedulerException {
-//        schedulerFactory.getScheduler().getListenerManager().addTriggerListener(triggerListener);
-//    }
-
     @Bean
-    @ConfigurationProperties("datasource-quartz")
-    DataSourceProperties quartzDataSourceProperties() {
-        return new DataSourceProperties();
-    }
-
-    @Bean("quartzDataSource")
-    @ConfigurationProperties("datasource-quartz.configuration")
-    @QuartzDataSource
-    public DataSource quartzDataSource(){
-        return quartzDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
-    }
-
-    @PostConstruct
-    public void registerQuartzConnectionProvider(@Qualifier("quartzDataSource") DataSource quartzDataSource) {
-        DBConnectionManager.getInstance().addConnectionProvider("quartzDataSource", new ConnectionProvider() {
-            @Override
-            public Connection getConnection() throws SQLException {
-                return quartzDataSource.getConnection();
-            }
-            @Override public void shutdown() {}
-            @Override public void initialize() {}
-        });
-    }
-
-    @Bean
-    public SchedulerFactoryBeanCustomizer schedulerFactoryBeanCustomizer(List<Job> jobs, DataSource dataSource) {
+    public SchedulerFactoryBeanCustomizer schedulerFactoryBeanCustomizer(List<Job> jobs) {
         return factory -> {
             List<JobDetail> jobDetails = new ArrayList<>();
             List<Trigger> triggers = new ArrayList<>();

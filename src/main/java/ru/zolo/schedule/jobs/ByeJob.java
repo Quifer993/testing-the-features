@@ -13,7 +13,7 @@ public class ByeJob extends JobBase {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
-            Thread.sleep(6000);
+            Thread.sleep(4000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

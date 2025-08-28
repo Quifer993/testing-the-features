@@ -45,11 +45,11 @@ schedule:
     hello:
       cron: "32 * * * * ?"
 #      #          cron: "-"
-    test:
-      cron: "0/5 * * * * ?"
+#    test2:
+#      cron: "0/5 * * * * ?"
     #      cron: "-"
-#    bye:
-#      cron: "0/15 * * * * ?"
+    bye:
+      cron: "0/7 * * * * ?"
 
 datasource-quartz:
   url: jdbc:postgresql://localhost:5432/umpa
