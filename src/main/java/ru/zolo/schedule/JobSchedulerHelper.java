@@ -1,14 +1,11 @@
 package ru.zolo.schedule;
 
 import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 
 public class JobSchedulerHelper {
 
@@ -28,17 +25,4 @@ public class JobSchedulerHelper {
                 .build();
         return trigger;
     }
-
-//    @Bean
-//    public static Triiger cronTrigger(JobDetail jobDetail, String name, String cronExpression) {
-//        CronTriggerFactoryBean trigger = new CronTriggerFactoryBean();
-//
-//        trigger.setBeanName(jobDetail.getKey().getName());
-//        trigger.setJobDetail(jobDetail);
-//        trigger.setBeanName(name + "_trigger");
-//        trigger.setCronExpression(cronExpression);
-//        trigger.setMisfireInstruction(CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING);
-////        trigger.
-//        return trigger;
-//    }
 }

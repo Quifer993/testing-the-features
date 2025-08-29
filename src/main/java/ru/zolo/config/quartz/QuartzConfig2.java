@@ -34,7 +34,7 @@ public class QuartzConfig2 {
     @Bean("quartzDataSource")
     @ConfigurationProperties("datasource-quartz.configuration")
     @QuartzDataSource
-    public DataSource quartzDataSource(){
+    public DataSource quartzDataSource() {
         return quartzDataSourceProperties().initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
@@ -45,8 +45,14 @@ public class QuartzConfig2 {
             public Connection getConnection() throws SQLException {
                 return quartzDataSource().getConnection();
             }
-            @Override public void shutdown() {}
-            @Override public void initialize() {}
+
+            @Override
+            public void shutdown() {
+            }
+
+            @Override
+            public void initialize() {
+            }
         });
     }
 }

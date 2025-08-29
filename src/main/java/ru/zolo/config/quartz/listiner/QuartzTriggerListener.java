@@ -6,8 +6,6 @@ import org.quartz.TriggerListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 @Profile("quartz")
 public class QuartzTriggerListener implements TriggerListener {

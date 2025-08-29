@@ -1,41 +1,24 @@
 package ru.zolo.config.quartz;
 
-import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.TriggerListener;
-import org.quartz.utils.ConnectionProvider;
-import org.quartz.utils.DBConnectionManager;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
 import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import ru.zolo.config.quartz.listiner.QuartzTriggerListener;
 import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
 import ru.zolo.schedule.jobs.JobBase;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-
-import static org.quartz.JobKey.jobKey;
 
 @Configuration
 @RequiredArgsConstructor
@@ -73,7 +56,6 @@ public class QuartzConfig {
 
                             JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
                             Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), cronExpression);
-//                            Trigger trigger = JobSchedulerHelper.cronTrigger(jobDetail, job.getBeanName(), cron);
 
                             jobDetails.add(jobDetail);
                             triggers.add(trigger);
@@ -84,15 +66,15 @@ public class QuartzConfig {
 
             factory.setJobDetails(jobDetails.toArray(new JobDetail[0]));
             factory.setTriggers(triggers.toArray(new Trigger[0]));
-            setProperty(factory, "org.quartz.threadPool.threadCount", Integer.valueOf(triggers.size()).toString());
+            setProperty(factory, "org.quartz.threadPool.threadCount", Integer.valueOf(triggers.size() + 1/*кол-во заранее поднятных мб*/).toString());
         };
     }
 
-    private static void setProperty(SchedulerFactoryBean factory, String name, String value){
+    private static void setProperty(SchedulerFactoryBean factory, String name, String value) {
         try {
             Field fieldQuartzProperties = SchedulerFactoryBean.class.getDeclaredField("quartzProperties");
             fieldQuartzProperties.setAccessible(true);
-            Properties prop = (Properties)fieldQuartzProperties.get(factory);
+            Properties prop = (Properties) fieldQuartzProperties.get(factory);
             prop.put(name, value);
             fieldQuartzProperties.setAccessible(false);
         } catch (NoSuchFieldException | IllegalAccessException e) {

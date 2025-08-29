@@ -5,12 +5,6 @@ spring:
   application:
     name: quartz-test
 
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/umpa
-#    username: admin
-#    password: 123
-#    driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,30 +17,32 @@ spring:
     data-source: quartzDataSource
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always
+      initialize-schema: always #embedded
     properties:
       org:
         quartz:
           scheduler:
-            instanceName: QuartzScheduler
+            instanceId: AUTO
+#            instanceName: QuartzScheduler
           jobStore:
             dataSource: quartzDataSource
             class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
-            clusterCheckinInterval: 20000
-            misfireThreshold: 7000
-          threadPool:
-            threadCount: 1
+            clusterCheckinInterval: 10000
+            misfireThreshold: 4000
+             # ввел ручками динамически в config
+#          threadPool:
+#            threadCount: 1
 
 schedule:
   jobs:
-    hello:
-      cron: "32 * * * * ?"
+#    hello:
+#      cron: "32 * * * * ?"
 #      #          cron: "-"
-#    test2:
-#      cron: "0/5 * * * * ?"
+    test2:
+      cron: "0/5 * * * * ?"
     #      cron: "-"
-    bye:
-      cron: "0/7 * * * * ?"
+#    bye:
+#      cron: "0/5 * * * * ?"
