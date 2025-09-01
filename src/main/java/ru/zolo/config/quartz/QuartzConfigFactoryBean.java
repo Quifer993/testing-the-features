@@ -35,21 +35,13 @@ public class QuartzConfigFactoryBean {
             for (Job job2 : jobs) {
                 Class<? extends Job> clazz = job2.getClass();
                 ScheduledProperties annotation = clazz.getAnnotation(ScheduledProperties.class);
+                String name = annotation.name();
                 if (JobBase.class.isAssignableFrom(clazz) && annotation != null) {
                     JobBase job = (JobBase) job2;
 
-                    Optional.ofNullable(scheduleProperties.getJobs().get(annotation.name())).ifPresent(jobConfig -> {
+                    Optional.ofNullable(scheduleProperties.getJobs().get(name)).ifPresent(jobConfig -> {
                         String cron = jobConfig.getCron();
                         if (cron != null && CronExpression.isValidExpression(cron)) {
-                            //todo
-                            //  Дано:
-                            //      Cron: "0/5 * * * * ?" (каждые 5 сек)
-                            //      Выполнение: 1-7 сек
-                            //      Все потоки заняты в момент 12:00:00
-                            //  Идеал:
-                            //      Потоков нет → запуск откладывается
-                            //      Потоки есть \ задача завершена -> запуск в 12 00 00
-                            //      Потоки есть задача не завершена - > запуск в 12 00 05
                             CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron)
 //                                    .withMisfireHandlingInstructionFireAndProceed();
 //                                    .withMisfireHandlingInstructionIgnoreMisfires();
@@ -58,8 +50,8 @@ public class QuartzConfigFactoryBean {
 
                             Class<? extends Job> jobClass = job.getClass();
 
-                            JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, job.getBeanName());
-                            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, job.getBeanName(), cronExpression);
+                            JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, name);
+                            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, name, cronExpression);
 
                             jobDetails.add(jobDetail);
                             triggers.add(trigger);

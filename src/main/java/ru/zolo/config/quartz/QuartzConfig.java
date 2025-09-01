@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.TriggerListener;
 import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,6 +21,9 @@ import java.sql.SQLException;
 @Configuration
 @RequiredArgsConstructor
 public class QuartzConfig {
+    @Value(value = "${spring.quartz.properties.org.quartz.jobStore.dataSource:quartzDataSource}")
+    private String quartzDsName;
+
     @Bean
     public TriggerListener quartzTriggerListenerCreate() {
         return new QuartzTriggerListener();
@@ -31,7 +35,7 @@ public class QuartzConfig {
         return new DataSourceProperties();
     }
 
-    @Bean("quartzDataSource")
+    @Bean(value = "quartzDataSource")
     @ConfigurationProperties("datasource-quartz.configuration")
     @QuartzDataSource
     public DataSource quartzDataSource() {
@@ -40,7 +44,7 @@ public class QuartzConfig {
 
     @PostConstruct
     public void registerQuartzConnectionProvider() {
-        DBConnectionManager.getInstance().addConnectionProvider("quartzDataSource", new ConnectionProvider() {
+        DBConnectionManager.getInstance().addConnectionProvider(quartzDsName, new ConnectionProvider() {
             @Override
             public Connection getConnection() throws SQLException {
                 return quartzDataSource().getConnection();
@@ -48,6 +52,9 @@ public class QuartzConfig {
 
             @Override
             public void shutdown() {
+                if (quartzDataSource() instanceof HikariDataSource) {
+                    ((HikariDataSource) quartzDataSource()).close();
+                }
             }
 
             @Override

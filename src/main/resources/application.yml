@@ -25,7 +25,7 @@ spring:
             instanceId: AUTO
 #            instanceName: QuartzScheduler
           jobStore:
-            dataSource: quartzDataSource
+            dataSource: quartzDataSource2
             class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
