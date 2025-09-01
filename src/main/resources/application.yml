@@ -43,6 +43,8 @@ schedule:
 #      #          cron: "-"
     test2:
       cron: "0/5 * * * * ?"
+    sample:
+      cron: "0/30 * * * * ?"
     #      cron: "-"
 #    bye:
 #      cron: "0/5 * * * * ?"
