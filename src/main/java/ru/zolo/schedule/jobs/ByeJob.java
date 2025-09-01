@@ -4,16 +4,18 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
+import ru.zolo.utils.annotation.quartz.ScheduledProperties;
 
 import java.time.Instant;
 
-@Component("bye")
+@Component
 @DisallowConcurrentExecution
+@ScheduledProperties(name = "bye")
 public class ByeJob extends JobBase {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
-            Thread.sleep(7000);
+            Thread.sleep(700);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

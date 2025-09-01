@@ -4,14 +4,16 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
+import ru.zolo.utils.annotation.quartz.ScheduledProperties;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component("test2")
+@Component
 @DisallowConcurrentExecution
+@ScheduledProperties(name = "test2")
 public class TestJob extends JobBase {
     static LocalDateTime start = null;
 

@@ -13,6 +13,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import ru.zolo.properties.ScheduleProperties;
 import ru.zolo.schedule.JobSchedulerHelper;
 import ru.zolo.schedule.jobs.JobBase;
+import ru.zolo.utils.annotation.quartz.ScheduledProperties;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -32,9 +33,12 @@ public class QuartzConfigFactoryBean {
             List<Trigger> triggers = new ArrayList<>();
 
             for (Job job2 : jobs) {
-                if (JobBase.class.isAssignableFrom(job2.getClass())) {
+                Class<? extends Job> clazz = job2.getClass();
+                ScheduledProperties annotation = clazz.getAnnotation(ScheduledProperties.class);
+                if (JobBase.class.isAssignableFrom(clazz) && annotation != null) {
                     JobBase job = (JobBase) job2;
-                    Optional.ofNullable(scheduleProperties.getJobs().get(job.getBeanName())).ifPresent(jobConfig -> {
+
+                    Optional.ofNullable(scheduleProperties.getJobs().get(annotation.name())).ifPresent(jobConfig -> {
                         String cron = jobConfig.getCron();
                         if (cron != null && CronExpression.isValidExpression(cron)) {
                             //todo
