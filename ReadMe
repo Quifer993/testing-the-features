@@ -3,6 +3,7 @@ java target/quartz-test-1.0-SNAPSHOT.jar --spring.config.additional-location=tar
 
 В самом файле quartz-datasource-local.yml настройте нужную базу и login/password
 
+Если запускается более 1 инстанса, то каждый раз базу перезаписывать заново опасно. Поэтому флаг 'spring.quartz.jdbc.initialize-schema' выставить после первого запуска -> never
 
 autoopertaion - job
 scheduler -	jobDetails
