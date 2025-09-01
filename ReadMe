@@ -1,6 +1,9 @@
 Параметры запуска:
 java target/quartz-test-1.0-SNAPSHOT.jar --spring.config.additional-location=target/classes/quartz-datasource-local.yml
 
+В самом файле quartz-datasource-local.yml настройте нужную базу и login/password
+
+
 autoopertaion - job
 scheduler -	jobDetails
 конфиг 	  -	triggers (отдельно создать класс, который будет проходить по всем джобам)
