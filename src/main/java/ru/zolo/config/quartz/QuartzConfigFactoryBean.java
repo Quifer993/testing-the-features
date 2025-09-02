@@ -25,6 +25,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class QuartzConfigFactoryBean {
     private final ScheduleProperties scheduleProperties;
+    private final JobSchedulerHelper jobSchedulerHelper;
 
     @Bean
     public SchedulerFactoryBeanCustomizer schedulerFactoryBeanCustomizer(List<Job> jobs) {
@@ -35,11 +36,11 @@ public class QuartzConfigFactoryBean {
             for (Job job2 : jobs) {
                 Class<? extends Job> clazz = job2.getClass();
                 ScheduledProperties annotation = clazz.getAnnotation(ScheduledProperties.class);
-                String name = annotation.name();
                 if (JobBase.class.isAssignableFrom(clazz) && annotation != null) {
+                    String jobName = annotation.name();
                     JobBase job = (JobBase) job2;
 
-                    Optional.ofNullable(scheduleProperties.getJobs().get(name)).ifPresent(jobConfig -> {
+                    Optional.ofNullable(scheduleProperties.getJobs().get(jobName)).ifPresent(jobConfig -> {
                         String cron = jobConfig.getCron();
                         if (cron != null && CronExpression.isValidExpression(cron)) {
                             CronScheduleBuilder cronExpression = CronScheduleBuilder.cronSchedule(cron)
@@ -47,11 +48,10 @@ public class QuartzConfigFactoryBean {
 //                                    .withMisfireHandlingInstructionIgnoreMisfires();
                                     .withMisfireHandlingInstructionDoNothing();
 
-
                             Class<? extends Job> jobClass = job.getClass();
 
-                            JobDetail jobDetail = JobSchedulerHelper.buildJobDetail(jobClass, name);
-                            Trigger trigger = JobSchedulerHelper.buildCronTrigger(jobDetail, name, cronExpression);
+                            JobDetail jobDetail = jobSchedulerHelper.buildJobDetail(jobClass, jobName);
+                            Trigger trigger = jobSchedulerHelper.buildCronTrigger(jobDetail, jobName, cronExpression);
 
                             jobDetails.add(jobDetail);
                             triggers.add(trigger);
@@ -59,6 +59,7 @@ public class QuartzConfigFactoryBean {
                     });
                 }
             }
+
 
             factory.setJobDetails(jobDetails.toArray(new JobDetail[0]));
             factory.setTriggers(triggers.toArray(new Trigger[0]));

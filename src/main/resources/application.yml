@@ -1,29 +1,21 @@
+app:
+  name: quifKa
+
 server:
   port: 8787
 
 spring:
   application:
     name: quartz-test
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-    database: POSTGRESQL
   quartz:
-    data-source: quartzDataSource
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
     properties:
       org:
         quartz:
           scheduler:
             instanceId: AUTO
-#            instanceName: QuartzScheduler
           jobStore:
             dataSource: quartzDataSource2
             class: org.quartz.impl.jdbcjobstore.JobStoreTX
@@ -32,15 +24,15 @@ spring:
             isClustered: true
             clusterCheckinInterval: 10000
             misfireThreshold: 4000
-             # ввел динамически в config
+            # ввел динамически в config
 #          threadPool:
 #            threadCount: 1
 
 schedule:
   jobs:
-#    hello:
-#      cron: "32 * * * * ?"
-#      #          cron: "-"
+    #    hello:
+    #      cron: "32 * * * * ?"
+    #      #          cron: "-"
     test2:
       cron: "0/5 * * * * ?"
     sample:
