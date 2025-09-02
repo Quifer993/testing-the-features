@@ -17,7 +17,7 @@ spring:
     data-source: quartzDataSource
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always #embedded
+      initialize-schema: always
     properties:
       org:
         quartz:
@@ -26,13 +26,13 @@ spring:
 #            instanceName: QuartzScheduler
           jobStore:
             dataSource: quartzDataSource2
-            class: org.quartz.impl.jdbcjobstore.JobStoreTX #не включать!
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             tablePrefix: QRTZ_
             isClustered: true
             clusterCheckinInterval: 10000
             misfireThreshold: 4000
-             # ввел ручками динамически в config
+             # ввел динамически в config
 #          threadPool:
 #            threadCount: 1
 
