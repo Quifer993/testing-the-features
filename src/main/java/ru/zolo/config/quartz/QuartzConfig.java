@@ -52,9 +52,10 @@ public class QuartzConfig {
 
             @Override
             public void shutdown() {
-                if (quartzDataSource() instanceof HikariDataSource) {
-                    ((HikariDataSource) quartzDataSource()).close();
-                }
+                //todo как будто не стоит так делать
+//                if (quartzDataSource() instanceof HikariDataSource) {
+//                    ((HikariDataSource) quartzDataSource()).close();
+//                }
             }
 
             @Override
